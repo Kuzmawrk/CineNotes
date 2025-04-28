@@ -40,47 +40,47 @@ struct MovieListView: View {
                             .listRowBackground(Color.clear)
                     }
                     
-                    HStack {
-                        Text("Your Movies")
-                            .font(.title2.bold())
-                            .foregroundStyle(Theme.text)
-                        
-                        Spacer()
-                        
-                        Menu {
-                            Button {
-                                withAnimation {
-                                    sortOrder = .date
-                                    sortByRating = false
-                                }
-                            } label: {
-                                Label("Sort by Date", systemImage: "calendar")
-                            }
-                            .disabled(sortOrder == .date)
+                    VStack(spacing: Theme.padding) {
+                        HStack {
+                            Text("Your Movies")
+                                .font(.title2.bold())
+                                .foregroundStyle(Theme.text)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
                             
-                            Button {
-                                withAnimation {
-                                    sortOrder = .rating
-                                    sortByRating = true
+                            Menu {
+                                Button {
+                                    withAnimation {
+                                        sortOrder = .date
+                                        sortByRating = false
+                                    }
+                                } label: {
+                                    Label("Sort by Date", systemImage: "calendar")
                                 }
-                            } label: {
-                                Label("Sort by Rating", systemImage: "star.fill")
-                            }
-                            .disabled(sortOrder == .rating)
-                            
-                            Divider()
-                            
-                            Button(role: .destructive) {
-                                withAnimation {
-                                    sortOrder = .date
-                                    sortByRating = false
+                                .disabled(sortOrder == .date)
+                                
+                                Button {
+                                    withAnimation {
+                                        sortOrder = .rating
+                                        sortByRating = true
+                                    }
+                                } label: {
+                                    Label("Sort by Rating", systemImage: "star.fill")
                                 }
+                                .disabled(sortOrder == .rating)
+                                
+                                Divider()
+                                
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        sortOrder = .date
+                                        sortByRating = false
+                                    }
+                                } label: {
+                                    Label("Reset Sort", systemImage: "arrow.counterclockwise")
+                                }
+                                .disabled(sortOrder == .date)
                             } label: {
-                                Label("Reset Sort", systemImage: "arrow.counterclockwise")
-                            }
-                            .disabled(sortOrder == .date)
-                        } label: {
-                            HStack(spacing: Theme.smallPadding) {
                                 Label(sortOrder.title, systemImage: sortOrder.icon)
                                     .font(.subheadline.bold())
                                     .foregroundStyle(Theme.primary)
@@ -89,6 +89,7 @@ struct MovieListView: View {
                                     .background(Theme.buttonBackground)
                                     .clipShape(Capsule())
                             }
+                            .padding(.trailing)
                         }
                     }
                     .listRowInsets(EdgeInsets())
