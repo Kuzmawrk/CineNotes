@@ -5,6 +5,8 @@ struct SettingsView: View {
     @State private var showingShareSheet = false
     
     private let appId = "YOUR_APP_ID" // Replace with your actual App ID
+    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    private let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     
     var body: some View {
         List {
@@ -80,7 +82,7 @@ struct SettingsView: View {
             
             Section {
                 LabeledContent {
-                    Text(Bundle.main.releaseVersionNumber ?? "1.0.0")
+                    Text("\(appVersion) (\(buildNumber))")
                         .foregroundStyle(Theme.secondaryText)
                 } label: {
                     Label("Version", systemImage: "info.circle.fill")
