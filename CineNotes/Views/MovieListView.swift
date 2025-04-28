@@ -9,13 +9,12 @@ struct MovieListView: View {
     @State private var showingDeleteAlert = false
     
     @AppStorage("sortByRating") private var sortByRating = false
-    @AppStorage("showStats") private var showStats = true
     
     var body: some View {
         ZStack {
             if !viewModel.movies.isEmpty {
                 List {
-                    if showStats {
+                    if !viewModel.movies.isEmpty {
                         statsView
                             .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
@@ -171,31 +170,11 @@ struct MovieListView: View {
     
     private var statsView: some View {
         VStack(spacing: Theme.padding) {
-            HStack {
-                Text("Movie Stats")
-                    .font(.title2.bold())
-                    .foregroundStyle(Theme.text)
-                Spacer()
-                
-                Button {
-                    withAnimation {
-                        showStats.toggle()
-                    }
-                } label: {
-                    HStack {
-                        Text(showStats ? "Hide" : "Show")
-                            .font(.subheadline.bold())
-                        Image(systemName: "chevron.up")
-                            .rotationEffect(.degrees(showStats ? 180 : 0))
-                    }
-                    .foregroundStyle(Theme.primary)
-                    .padding(.horizontal, Theme.padding)
-                    .padding(.vertical, Theme.smallPadding)
-                    .background(Theme.buttonBackground)
-                    .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal)
+            Text("Movie Stats")
+                .font(.title2.bold())
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(Theme.text)
+                .padding(.horizontal)
             
             HStack(spacing: Theme.padding) {
                 MovieStatCard(
