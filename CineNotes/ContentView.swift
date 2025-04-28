@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = MovieViewModel()
     @State private var selectedTab = 0
+    @AppStorage("isDarkMode") private var isDarkMode = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -25,6 +26,7 @@ struct ContentView: View {
             }
         }
         .tint(Theme.primary)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 }
 

@@ -1,168 +1,115 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("defaultGenre") private var defaultGenre = ""
-    @AppStorage("sortByRating") private var sortByRating = false
-    @AppStorage("showStats") private var showStats = true
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
-    
-    @State private var showingResetAlert = false
+    @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var showingShareSheet = false
+    
+    private let appId = "YOUR_APP_ID" // Replace with your actual App ID
     
     var body: some View {
         List {
             Section {
-                TextField("Default Genre", text: $defaultGenre)
-                    .textContentType(.none)
-                    .autocapitalization(.words)
-                
-                toggleRow(title: "Sort by Rating", 
-                         icon: "arrow.up.arrow.down",
-                         isOn: $sortByRating)
-                
-                toggleRow(title: "Show Statistics",
-                         icon: "chart.bar.fill",
-                         isOn: $showStats)
-                
-                toggleRow(title: "Enable Notifications",
-                         icon: "bell.fill",
-                         isOn: $notificationsEnabled)
+                Toggle(isOn: $isDarkMode) {
+                    Label {
+                        Text("Dark Mode")
+                    } icon: {
+                        Image(systemName: isDarkMode ? "moon.fill" : "moon")
+                            .foregroundStyle(isDarkMode ? .yellow : Theme.primary)
+                    }
+                }
+                .tint(Theme.success)
             } header: {
-                Text("Preferences")
+                Text("Appearance")
             } footer: {
-                Text("Configure your app experience")
+                Text("Change the app's appearance")
+            }
+            
+            Section {
+                Button {
+                    rateApp()
+                } label: {
+                    Label {
+                        Text("Rate this App")
+                            .foregroundStyle(Theme.text)
+                    } icon: {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+                
+                Button {
+                    shareApp()
+                } label: {
+                    Label {
+                        Text("Share this App")
+                            .foregroundStyle(Theme.text)
+                    } icon: {
+                        Image(systemName: "square.and.arrow.up")
+                            .foregroundStyle(Theme.primary)
+                    }
+                }
+            } header: {
+                Text("Support Us")
+            }
+            
+            Section {
+                NavigationLink {
+                    PrivacyPolicyView()
+                } label: {
+                    Label {
+                        Text("Privacy Policy")
+                    } icon: {
+                        Image(systemName: "hand.raised.fill")
+                            .foregroundStyle(Theme.secondary)
+                    }
+                }
+                
+                NavigationLink {
+                    TermsOfUseView()
+                } label: {
+                    Label {
+                        Text("Terms of Use")
+                    } icon: {
+                        Image(systemName: "doc.text.fill")
+                            .foregroundStyle(Theme.accent)
+                    }
+                }
+            } header: {
+                Text("Legal")
             }
             
             Section {
                 LabeledContent {
                     Text(Bundle.main.releaseVersionNumber ?? "1.0.0")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.secondaryText)
                 } label: {
-                    Label("Version", systemImage: "number")
+                    Label("Version", systemImage: "info.circle.fill")
+                        .foregroundStyle(Theme.text)
                 }
-                
-                LabeledContent {
-                    Text(Bundle.main.buildVersionNumber ?? "1")
-                        .foregroundStyle(.secondary)
-                } label: {
-                    Label("Build", systemImage: "hammer.fill")
-                }
-            } header: {
-                Text("App Info")
             }
-            
-            Section {
-                Button {
-                    showingShareSheet = true
-                } label: {
-                    HStack {
-                        Label("Export Data", systemImage: "square.and.arrow.up")
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption.bold())
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .foregroundStyle(Theme.text)
-                
-                Button(role: .destructive) {
-                    showingResetAlert = true
-                } label: {
-                    HStack {
-                        Label("Reset All Data", systemImage: "exclamationmark.triangle")
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption.bold())
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            } header: {
-                Text("Data Management")
-            } footer: {
-                Text("Export or reset your movie data")
-            }
-            
-            Section {
-                Link(destination: URL(string: "https://www.example.com/privacy")!) {
-                    HStack {
-                        Label("Privacy Policy", systemImage: "hand.raised.fill")
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption.bold())
-                    }
-                }
-                .foregroundStyle(Theme.text)
-                
-                Link(destination: URL(string: "https://www.example.com/terms")!) {
-                    HStack {
-                        Label("Terms of Use", systemImage: "doc.text.fill")
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption.bold())
-                    }
-                }
-                .foregroundStyle(Theme.text)
-                
-                Link(destination: URL(string: "mailto:support@example.com")!) {
-                    HStack {
-                        Label("Contact Support", systemImage: "envelope.fill")
-                        Spacer()
-                        Image(systemName: "arrow.up.right")
-                            .font(.caption.bold())
-                    }
-                }
-                .foregroundStyle(Theme.text)
-            } header: {
-                Text("About")
-            } footer: {
-                Text("CineNotes © 2024")
-            }
-        }
-        .alert("Reset All Data", isPresented: $showingResetAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Reset", role: .destructive) {
-                resetAllData()
-            }
-        } message: {
-            Text("Are you sure you want to reset all data? This action cannot be undone.")
         }
         .sheet(isPresented: $showingShareSheet) {
-            ShareSheet(activityItems: [exportData()])
+            ShareSheet(activityItems: [createShareText()])
         }
     }
     
-    private func toggleRow(title: String, icon: String, isOn: Binding<Bool>) -> some View {
-        Toggle(isOn: isOn) {
-            Label(title, systemImage: icon)
-        }
-        .tint(Theme.success)
-        .overlay {
-            GeometryReader { geometry in
-                Color.clear.preference(
-                    key: ViewSizeKey.self,
-                    value: geometry.size
-                )
-            }
-        }
+    private func rateApp() {
+        guard let appStoreURL = URL(string: "https://apps.apple.com/app/id\(appId)") else { return }
+        UIApplication.shared.open(appStoreURL, options: [:], completionHandler: nil)
     }
     
-    private func resetAllData() {
-        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
-        defaultGenre = ""
-        sortByRating = false
-        showStats = true
-        notificationsEnabled = true
+    private func shareApp() {
+        showingShareSheet = true
     }
     
-    private func exportData() -> String {
-        "CineNotes Export Data"
-    }
-}
-
-struct ViewSizeKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
-    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
+    private func createShareText() -> String {
+        """
+        Check out CineNotes - Your Personal Movie Journal!
+        
+        Track your movie experiences, record your thoughts, and never forget those special cinema moments.
+        
+        Download now: https://apps.apple.com/app/id\(appId)
+        """
     }
 }
 
@@ -174,16 +121,6 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-extension Bundle {
-    var releaseVersionNumber: String? {
-        return infoDictionary?["CFBundleShortVersionString"] as? String
-    }
-    
-    var buildVersionNumber: String? {
-        return infoDictionary?["CFBundleVersion"] as? String
-    }
 }
 
 #Preview {
