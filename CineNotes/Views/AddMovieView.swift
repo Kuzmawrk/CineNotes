@@ -38,12 +38,12 @@ struct AddMovieView: View {
                     TextField("Title", text: $title)
                         .focused($focusedField, equals: .title)
                         .textContentType(.none)
-                        .submitLabel(.next)
+                        .submitLabel(.done)
                     
                     TextField("Genre", text: $genre)
                         .focused($focusedField, equals: .genre)
                         .textContentType(.none)
-                        .submitLabel(.next)
+                        .submitLabel(.done)
                     
                     DatePicker("Watch Date", selection: $watchDate, displayedComponents: .date)
                 }
@@ -97,28 +97,6 @@ struct AddMovieView: View {
                     .bold()
                     .disabled(title.isEmpty)
                 }
-                
-                ToolbarItem(placement: .keyboard) {
-                    HStack {
-                        Button("Previous") {
-                            moveToPreviousField()
-                        }
-                        .disabled(!hasPreviousField)
-                        
-                        Spacer()
-                        
-                        Button("Next") {
-                            moveToNextField()
-                        }
-                        .disabled(!hasNextField)
-                        
-                        Spacer()
-                        
-                        Button("Done") {
-                            focusedField = nil
-                        }
-                    }
-                }
             }
             .alert("Discard Changes?", isPresented: $showingDiscardAlert) {
                 Button("Cancel", role: .cancel) { }
@@ -135,64 +113,6 @@ struct AddMovieView: View {
             }
         }
         .interactiveDismissDisabled(hasUnsavedChanges)
-    }
-    
-    private var hasNextField: Bool {
-        switch focusedField {
-        case .title: return true
-        case .genre: return true
-        case .thoughts: return true
-        case .favoriteScene: return true
-        case .quote: return true
-        case .emotionalResponse: return false
-        case .none: return false
-        }
-    }
-    
-    private var hasPreviousField: Bool {
-        switch focusedField {
-        case .title: return false
-        case .genre: return true
-        case .thoughts: return true
-        case .favoriteScene: return true
-        case .quote: return true
-        case .emotionalResponse: return true
-        case .none: return false
-        }
-    }
-    
-    private func moveToNextField() {
-        switch focusedField {
-        case .title:
-            focusedField = .genre
-        case .genre:
-            focusedField = .thoughts
-        case .thoughts:
-            focusedField = .favoriteScene
-        case .favoriteScene:
-            focusedField = .quote
-        case .quote:
-            focusedField = .emotionalResponse
-        default:
-            focusedField = nil
-        }
-    }
-    
-    private func moveToPreviousField() {
-        switch focusedField {
-        case .genre:
-            focusedField = .title
-        case .thoughts:
-            focusedField = .genre
-        case .favoriteScene:
-            focusedField = .thoughts
-        case .quote:
-            focusedField = .favoriteScene
-        case .emotionalResponse:
-            focusedField = .quote
-        default:
-            focusedField = nil
-        }
     }
     
     private func saveMovie() {
