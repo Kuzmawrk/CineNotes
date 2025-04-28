@@ -5,6 +5,8 @@ struct MovieListView: View {
     @Binding var selectedTab: Int
     @State private var selectedMovie: Movie?
     @State private var showingAddMovie = false
+    @State private var movieToDelete: Movie?
+    @State private var showingDeleteAlert = false
     
     @AppStorage("sortByRating") private var sortByRating = false
     @AppStorage("showStats") private var showStats = true
@@ -61,6 +63,21 @@ struct MovieListView: View {
                             MovieCardView(movie: movie)
                                 .onTapGesture {
                                     selectedMovie = movie
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        movieToDelete = movie
+                                        showingDeleteAlert = true
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
+                                    Button {
+                                        selectedMovie = movie
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(Theme.primary)
                                 }
                         }
                     }
@@ -123,11 +140,27 @@ struct MovieListView: View {
         .sheet(isPresented: $showingAddMovie) {
             AddMovieView(viewModel: viewModel)
                 .onDisappear {
-                    // Switch to first tab after adding movie
                     if viewModel.showSuccessMessage {
                         selectedTab = 0
                     }
                 }
+        }
+        .alert("Delete Movie", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                movieToDelete = nil
+            }
+            Button("Delete", role: .destructive) {
+                if let movie = movieToDelete {
+                    withAnimation {
+                        viewModel.deleteMovie(movie)
+                    }
+                }
+                movieToDelete = nil
+            }
+        } message: {
+            if let movie = movieToDelete {
+                Text("Are you sure you want to delete "\(movie.title)"? This action cannot be undone.")
+            }
         }
     }
     
