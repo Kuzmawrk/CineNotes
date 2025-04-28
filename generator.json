@@ -1,0 +1,15 @@
+{
+  "chatHistory" : [
+
+  ],
+  "id" : "4A1C9132-B63C-4BA2-8307-5028B77A13DD",
+  "name" : "CineNotes",
+  "lastModified" : 1745840473.128961,
+  "files" : [
+
+  ],
+  "location" : "\/Users\/kuzmakuzmin\/Documents\/gen proj\/CineNotes",
+  "template" : "AppProject",
+  "bundleId" : "com.CineNotes.cn2025",
+  "teamId" : "com.CineNotes.cn2025"
+}
