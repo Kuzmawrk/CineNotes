@@ -3,6 +3,7 @@ import SwiftUI
 struct AddMovieView: View {
     @ObservedObject var viewModel: MovieViewModel
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("defaultGenre") private var defaultGenre = ""
     
     @State private var title = ""
     @State private var genre = ""
@@ -104,6 +105,11 @@ struct AddMovieView: View {
                     focusedField = .emotionalResponse
                 default:
                     focusedField = nil
+                }
+            }
+            .onAppear {
+                if genre.isEmpty && !defaultGenre.isEmpty {
+                    genre = defaultGenre
                 }
             }
         }

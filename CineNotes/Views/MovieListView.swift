@@ -3,16 +3,20 @@ import SwiftUI
 struct MovieListView: View {
     @ObservedObject var viewModel: MovieViewModel
     @State private var selectedMovie: Movie?
+    @State private var showingAddMovie = false
+    
+    @AppStorage("sortByRating") private var sortByRating = false
+    @AppStorage("showStats") private var showStats = true
     
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.padding) {
-                if !viewModel.movies.isEmpty {
+                if !viewModel.movies.isEmpty && showStats {
                     statsView
                 }
                 
                 LazyVStack(spacing: Theme.padding) {
-                    ForEach(viewModel.sortedMovies) { movie in
+                    ForEach(sortedMovies) { movie in
                         MovieCard(movie: movie)
                             .onTapGesture {
                                 selectedMovie = movie
@@ -22,10 +26,38 @@ struct MovieListView: View {
                 .padding(.horizontal)
             }
         }
+        .overlay {
+            if viewModel.movies.isEmpty {
+                ContentUnavailableView(
+                    "No Movies Yet",
+                    systemImage: "film",
+                    description: Text("Tap + to add your first movie")
+                )
+            }
+        }
         .sheet(item: $selectedMovie) { movie in
             MovieDetailView(movie: movie, viewModel: viewModel)
         }
+        .sheet(isPresented: $showingAddMovie) {
+            AddMovieView(viewModel: viewModel)
+        }
+        .toolbar {
+            Button {
+                showingAddMovie = true
+            } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title2)
+            }
+        }
         .background(Color(uiColor: .systemGroupedBackground))
+    }
+    
+    private var sortedMovies: [Movie] {
+        if sortByRating {
+            return viewModel.movies.sorted { $0.rating > $1.rating }
+        } else {
+            return viewModel.sortedMovies
+        }
     }
     
     private var statsView: some View {
@@ -125,5 +157,7 @@ struct RatingView: View {
 }
 
 #Preview {
-    MovieListView(viewModel: MovieViewModel())
+    NavigationStack {
+        MovieListView(viewModel: MovieViewModel())
+    }
 }

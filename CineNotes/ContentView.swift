@@ -2,26 +2,26 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = MovieViewModel()
-    @State private var showingAddMovie = false
     
     var body: some View {
-        NavigationStack {
-            MovieListView(viewModel: viewModel)
-                .navigationTitle("CineNotes")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            showingAddMovie = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                        }
-                    }
-                }
-                .sheet(isPresented: $showingAddMovie) {
-                    AddMovieView(viewModel: viewModel)
-                }
+        TabView {
+            NavigationStack {
+                MovieListView(viewModel: viewModel)
+                    .navigationTitle("Notes")
+            }
+            .tabItem {
+                Label("Notes", systemImage: "book.fill")
+            }
+            
+            NavigationStack {
+                SettingsView()
+                    .navigationTitle("Settings")
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gear")
+            }
         }
+        .tint(Theme.primary)
     }
 }
 
