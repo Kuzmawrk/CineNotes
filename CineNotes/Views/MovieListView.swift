@@ -253,4 +253,118 @@ struct MovieListView: View {
     }
 }
 
-// Rest of the code remains the same...
+// MARK: - Supporting Views
+
+struct MovieCardView: View {
+    let movie: Movie
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.padding / 2) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading) {
+                    Text(movie.title)
+                        .font(.title3.bold())
+                        .foregroundStyle(Theme.text)
+                    
+                    Text(movie.genre)
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.secondaryText)
+                }
+                
+                Spacer()
+                
+                MovieRatingView(rating: movie.rating)
+                    .font(.callout)
+            }
+            
+            if !movie.thoughts.isEmpty {
+                Text(movie.thoughts)
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.secondaryText)
+                    .lineLimit(2)
+                    .padding(.top, 4)
+            }
+            
+            HStack(spacing: Theme.padding) {
+                Label {
+                    Text(DateFormatters.formatDate(movie.watchDate))
+                        .font(.caption)
+                } icon: {
+                    Image(systemName: "calendar")
+                        .foregroundStyle(Theme.primary)
+                }
+                .foregroundStyle(Theme.secondaryText)
+                
+                Spacer()
+                
+                if !movie.quotes.isEmpty {
+                    Label {
+                        Text("\(movie.quotes.count)")
+                            .font(.caption)
+                    } icon: {
+                        Image(systemName: "quote.bubble")
+                            .foregroundStyle(Theme.accent)
+                    }
+                    .foregroundStyle(Theme.secondaryText)
+                }
+                
+                if !movie.favoriteScenes.isEmpty {
+                    Label {
+                        Text("\(movie.favoriteScenes.count)")
+                            .font(.caption)
+                    } icon: {
+                        Image(systemName: "film.stack")
+                            .foregroundStyle(Theme.secondary)
+                    }
+                    .foregroundStyle(Theme.secondaryText)
+                }
+            }
+        }
+        .padding(Theme.padding)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .shadow(color: Theme.elevation(2), radius: Theme.shadowRadius, y: Theme.shadowY)
+    }
+}
+
+struct MovieStatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: Theme.padding / 2) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(color)
+                .padding(Theme.smallPadding)
+                .background(color.opacity(0.2))
+                .clipShape(Circle())
+            
+            Text(value)
+                .font(.title2.bold())
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+                .foregroundStyle(Theme.text)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(Theme.secondaryText)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(Theme.padding)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .shadow(color: Theme.elevation(1), radius: Theme.shadowRadius / 2, y: Theme.shadowY / 2)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        MovieListView(viewModel: MovieViewModel(), selectedTab: .constant(0))
+            .navigationTitle("Notes")
+    }
+}
