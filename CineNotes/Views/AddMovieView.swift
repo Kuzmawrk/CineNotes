@@ -13,11 +13,22 @@ struct AddMovieView: View {
     @State private var favoriteScene = ""
     @State private var quote = ""
     @State private var emotionalResponse = ""
+    @State private var showingDiscardAlert = false
     
     @FocusState private var focusedField: Field?
     
     enum Field {
         case title, genre, thoughts, favoriteScene, quote, emotionalResponse
+    }
+    
+    var hasUnsavedChanges: Bool {
+        !title.isEmpty || 
+        !genre.isEmpty || 
+        rating != 0 || 
+        !thoughts.isEmpty || 
+        !favoriteScene.isEmpty || 
+        !quote.isEmpty || 
+        !emotionalResponse.isEmpty
     }
     
     var body: some View {
@@ -65,16 +76,21 @@ struct AddMovieView: View {
                         .frame(height: 100)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Add Movie")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel", role: .cancel) {
+                        if hasUnsavedChanges {
+                            showingDiscardAlert = true
+                        } else {
+                            dismiss()
+                        }
                     }
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveMovie()
                     }
@@ -84,28 +100,33 @@ struct AddMovieView: View {
                 
                 ToolbarItem(placement: .keyboard) {
                     HStack {
+                        Button("Previous") {
+                            moveToPreviousField()
+                        }
+                        .disabled(!hasPreviousField)
+                        
                         Spacer()
+                        
+                        Button("Next") {
+                            moveToNextField()
+                        }
+                        .disabled(!hasNextField)
+                        
+                        Spacer()
+                        
                         Button("Done") {
                             focusedField = nil
                         }
                     }
                 }
             }
-            .onSubmit {
-                switch focusedField {
-                case .title:
-                    focusedField = .genre
-                case .genre:
-                    focusedField = .thoughts
-                case .thoughts:
-                    focusedField = .favoriteScene
-                case .favoriteScene:
-                    focusedField = .quote
-                case .quote:
-                    focusedField = .emotionalResponse
-                default:
-                    focusedField = nil
+            .alert("Discard Changes?", isPresented: $showingDiscardAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Discard", role: .destructive) {
+                    dismiss()
                 }
+            } message: {
+                Text("You have unsaved changes. Are you sure you want to discard them?")
             }
             .onAppear {
                 if genre.isEmpty && !defaultGenre.isEmpty {
@@ -113,7 +134,65 @@ struct AddMovieView: View {
                 }
             }
         }
-        .interactiveDismissDisabled()
+        .interactiveDismissDisabled(hasUnsavedChanges)
+    }
+    
+    private var hasNextField: Bool {
+        switch focusedField {
+        case .title: return true
+        case .genre: return true
+        case .thoughts: return true
+        case .favoriteScene: return true
+        case .quote: return true
+        case .emotionalResponse: return false
+        case .none: return false
+        }
+    }
+    
+    private var hasPreviousField: Bool {
+        switch focusedField {
+        case .title: return false
+        case .genre: return true
+        case .thoughts: return true
+        case .favoriteScene: return true
+        case .quote: return true
+        case .emotionalResponse: return true
+        case .none: return false
+        }
+    }
+    
+    private func moveToNextField() {
+        switch focusedField {
+        case .title:
+            focusedField = .genre
+        case .genre:
+            focusedField = .thoughts
+        case .thoughts:
+            focusedField = .favoriteScene
+        case .favoriteScene:
+            focusedField = .quote
+        case .quote:
+            focusedField = .emotionalResponse
+        default:
+            focusedField = nil
+        }
+    }
+    
+    private func moveToPreviousField() {
+        switch focusedField {
+        case .genre:
+            focusedField = .title
+        case .thoughts:
+            focusedField = .genre
+        case .favoriteScene:
+            focusedField = .thoughts
+        case .quote:
+            focusedField = .favoriteScene
+        case .emotionalResponse:
+            focusedField = .quote
+        default:
+            focusedField = nil
+        }
     }
     
     private func saveMovie() {
@@ -143,7 +222,11 @@ struct RatingSelector: View {
                     .font(.title2)
                     .onTapGesture {
                         withAnimation(.spring(response: 0.2, dampingFraction: 0.5)) {
-                            rating = index
+                            if rating == index {
+                                rating = 0 // Allow deselecting rating
+                            } else {
+                                rating = index
+                            }
                         }
                     }
             }

@@ -2,13 +2,15 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = MovieViewModel()
+    @State private var selectedTab = 0
     
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             NavigationStack {
                 MovieListView(viewModel: viewModel)
                     .navigationTitle("Notes")
             }
+            .tag(0)
             .tabItem {
                 Label("Notes", systemImage: "book.fill")
             }
@@ -17,6 +19,7 @@ struct ContentView: View {
                 SettingsView()
                     .navigationTitle("Settings")
             }
+            .tag(1)
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
