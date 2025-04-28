@@ -10,6 +10,9 @@ struct MovieListView: View {
     
     var body: some View {
         ZStack {
+            Theme.groupedBackground
+                .ignoresSafeArea()
+            
             ScrollView {
                 VStack(spacing: Theme.padding) {
                     if !viewModel.movies.isEmpty && showStats {
@@ -53,7 +56,6 @@ struct MovieListView: View {
                 }
                 .padding(.bottom, 100) // Space for FAB
             }
-            .background(Color(uiColor: .systemGroupedBackground))
             
             if viewModel.movies.isEmpty {
                 ContentUnavailableView(
@@ -77,7 +79,12 @@ struct MovieListView: View {
                             .frame(width: 60, height: 60)
                             .background(Theme.primary)
                             .clipShape(Circle())
-                            .shadow(radius: 4, x: 0, y: 2)
+                            .shadow(
+                                color: Theme.primary.opacity(0.3),
+                                radius: 8,
+                                x: 0,
+                                y: 4
+                            )
                     }
                     .padding()
                     .padding(.bottom, 8)
@@ -144,7 +151,6 @@ struct MovieListView: View {
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
-        .background(Theme.background.opacity(0.5))
     }
     
     private func getTopGenre() -> String? {
@@ -167,7 +173,7 @@ struct MovieCardView: View {
                     
                     Text(movie.genre)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.secondaryText)
                 }
                 
                 Spacer()
@@ -178,7 +184,7 @@ struct MovieCardView: View {
             if !movie.thoughts.isEmpty {
                 Text(movie.thoughts)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.secondaryText)
                     .lineLimit(2)
                     .padding(.top, 4)
             }
@@ -186,28 +192,34 @@ struct MovieCardView: View {
             HStack {
                 Label(DateFormatters.formatDate(movie.watchDate), systemImage: "calendar")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.secondaryText)
                 
                 Spacer()
                 
                 if !movie.quotes.isEmpty {
                     Label("\(movie.quotes.count)", systemImage: "quote.bubble")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.secondaryText)
                 }
                 
                 if !movie.favoriteScenes.isEmpty {
                     Label("\(movie.favoriteScenes.count)", systemImage: "film.stack")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.secondaryText)
                 }
             }
         }
         .padding()
         .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-        .shadow(radius: Theme.shadowRadius, y: Theme.shadowY)
-        .contentShape(Rectangle())
+        .shadow(
+            color: Theme.adaptiveColor(
+                light: .black.opacity(0.1),
+                dark: .white.opacity(0.05)
+            ),
+            radius: Theme.shadowRadius,
+            y: Theme.shadowY
+        )
     }
 }
 
@@ -229,7 +241,7 @@ struct MovieStatCard: View {
             
             Text(title)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Theme.secondaryText)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
@@ -237,7 +249,14 @@ struct MovieStatCard: View {
         .padding()
         .background(Theme.background)
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
-        .shadow(radius: Theme.shadowRadius, y: Theme.shadowY)
+        .shadow(
+            color: Theme.adaptiveColor(
+                light: .black.opacity(0.1),
+                dark: .white.opacity(0.05)
+            ),
+            radius: Theme.shadowRadius,
+            y: Theme.shadowY
+        )
     }
 }
 
