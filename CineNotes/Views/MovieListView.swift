@@ -13,80 +13,77 @@ struct MovieListView: View {
     
     var body: some View {
         ZStack {
-            Theme.groupedBackground
-                .ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: Theme.padding) {
-                    if !viewModel.movies.isEmpty && showStats {
+            if !viewModel.movies.isEmpty {
+                List {
+                    if showStats {
                         statsView
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
                     }
                     
-                    if !viewModel.movies.isEmpty {
-                        HStack {
-                            Text("Your Movies")
-                                .font(.title2.bold())
-                                .foregroundStyle(Theme.text)
-                            
-                            Spacer()
-                            
-                            Menu {
-                                Button {
-                                    withAnimation {
-                                        sortByRating.toggle()
-                                    }
-                                } label: {
-                                    Label(
-                                        sortByRating ? "Sort by Date" : "Sort by Rating",
-                                        systemImage: sortByRating ? "calendar" : "star.fill"
-                                    )
+                    HStack {
+                        Text("Your Movies")
+                            .font(.title2.bold())
+                            .foregroundStyle(Theme.text)
+                        
+                        Spacer()
+                        
+                        Menu {
+                            Button {
+                                withAnimation {
+                                    sortByRating.toggle()
                                 }
                             } label: {
-                                HStack(spacing: Theme.smallPadding) {
-                                    Text(sortByRating ? "Rating" : "Date")
-                                        .font(.subheadline.bold())
-                                    Image(systemName: "arrow.up.arrow.down")
-                                }
-                                .foregroundStyle(Theme.primary)
-                                .padding(.horizontal, Theme.padding)
-                                .padding(.vertical, Theme.smallPadding)
-                                .background(Theme.buttonBackground)
-                                .clipShape(Capsule())
+                                Label(
+                                    sortByRating ? "Sort by Date" : "Sort by Rating",
+                                    systemImage: sortByRating ? "calendar" : "star.fill"
+                                )
                             }
+                        } label: {
+                            HStack(spacing: Theme.smallPadding) {
+                                Text(sortByRating ? "Rating" : "Date")
+                                    .font(.subheadline.bold())
+                                Image(systemName: "arrow.up.arrow.down")
+                            }
+                            .foregroundStyle(Theme.primary)
+                            .padding(.horizontal, Theme.padding)
+                            .padding(.vertical, Theme.smallPadding)
+                            .background(Theme.buttonBackground)
+                            .clipShape(Capsule())
                         }
-                        .padding(.horizontal)
                     }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
                     
-                    LazyVStack(spacing: Theme.padding) {
-                        ForEach(sortedMovies) { movie in
-                            MovieCardView(movie: movie)
-                                .onTapGesture {
+                    ForEach(sortedMovies) { movie in
+                        MovieCardView(movie: movie)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                            .listRowBackground(Color.clear)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                selectedMovie = movie
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    movieToDelete = movie
+                                    showingDeleteAlert = true
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                                
+                                Button {
                                     selectedMovie = movie
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        movieToDelete = movie
-                                        showingDeleteAlert = true
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                    
-                                    Button {
-                                        selectedMovie = movie
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
-                                    }
-                                    .tint(Theme.primary)
-                                }
-                        }
+                                .tint(Theme.primary)
+                            }
                     }
-                    .padding(.horizontal)
                 }
-                .padding(.bottom, 100) // Space for FAB
-            }
-            
-            if viewModel.movies.isEmpty {
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(Theme.groupedBackground)
+            } else {
                 ContentUnavailableView {
                     Label("Welcome to CineNotes", systemImage: "film")
                 } description: {
@@ -159,7 +156,7 @@ struct MovieListView: View {
             }
         } message: {
             if let movie = movieToDelete {
-                Text("Are you sure you want to delete "\(movie.title)"? This action cannot be undone.")
+                Text("Are you sure you want to delete \"\(movie.title)\"? This action cannot be undone.")
             }
         }
     }
