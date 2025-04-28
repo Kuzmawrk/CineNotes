@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MovieListView: View {
     @ObservedObject var viewModel: MovieViewModel
+    @Binding var selectedTab: Int
     @State private var selectedMovie: Movie?
     @State private var showingAddMovie = false
     
@@ -121,6 +122,12 @@ struct MovieListView: View {
         }
         .sheet(isPresented: $showingAddMovie) {
             AddMovieView(viewModel: viewModel)
+                .onDisappear {
+                    // Switch to first tab after adding movie
+                    if viewModel.showSuccessMessage {
+                        selectedTab = 0
+                    }
+                }
         }
     }
     
@@ -305,7 +312,7 @@ struct MovieStatCard: View {
 
 #Preview {
     NavigationStack {
-        MovieListView(viewModel: MovieViewModel())
+        MovieListView(viewModel: MovieViewModel(), selectedTab: .constant(0))
             .navigationTitle("Notes")
     }
 }

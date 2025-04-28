@@ -4,12 +4,17 @@ struct MovieDetailView: View {
     let movie: Movie
     @ObservedObject var viewModel: MovieViewModel
     @Environment(\.dismiss) private var dismiss
+    
     @State private var showingDeleteAlert = false
+    @State private var showingEditSheet = false
+    @State private var showingShareSheet = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.padding) {
                 header
+                
+                actionButtons
                 
                 if !movie.thoughts.isEmpty {
                     detailSection(
@@ -53,12 +58,15 @@ struct MovieDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(role: .destructive) {
-                    showingDeleteAlert = true
+                Menu {
+                    Button(role: .destructive) {
+                        showingDeleteAlert = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 } label: {
-                    Label("Delete", systemImage: "trash")
-                        .font(.headline)
-                        .foregroundStyle(.red)
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
                 }
             }
         }
@@ -69,6 +77,12 @@ struct MovieDetailView: View {
             }
         } message: {
             Text("Are you sure you want to delete this movie? This action cannot be undone.")
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            EditMovieView(viewModel: viewModel, movie: movie)
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(activityItems: [createShareText()])
         }
     }
     
@@ -109,6 +123,34 @@ struct MovieDetailView: View {
         .shadow(color: Theme.elevation(2), radius: Theme.shadowRadius, y: Theme.shadowY)
     }
     
+    private var actionButtons: some View {
+        HStack(spacing: Theme.padding) {
+            Button {
+                showingEditSheet = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Theme.primary)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            }
+            
+            Button {
+                showingShareSheet = true
+            } label: {
+                Label("Share", systemImage: "square.and.arrow.up")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Theme.accent)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            }
+        }
+    }
+    
     private func detailSection(title: String, icon: String, color: Color, content: String) -> some View {
         VStack(alignment: .leading, spacing: Theme.padding) {
             HStack {
@@ -144,6 +186,18 @@ struct MovieDetailView: View {
             viewModel.deleteMovie(movie)
             dismiss()
         }
+    }
+    
+    private func createShareText() -> String {
+        """
+        Movie: \(movie.title)
+        Genre: \(movie.genre)
+        Rating: \(String(repeating: "⭐️", count: movie.rating))
+        
+        \(movie.thoughts)
+        
+        Shared from CineNotes
+        """
     }
 }
 

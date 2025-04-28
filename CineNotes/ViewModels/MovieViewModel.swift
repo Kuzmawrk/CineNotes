@@ -5,6 +5,8 @@ import SwiftUI
 class MovieViewModel: ObservableObject {
     @Published var movies: [Movie] = []
     @Published var selectedMovie: Movie?
+    @Published var showSuccessMessage = false
+    @Published var successMessage = ""
     
     private let saveKey = "SavedMovies"
     
@@ -15,18 +17,21 @@ class MovieViewModel: ObservableObject {
     func addMovie(_ movie: Movie) {
         movies.append(movie)
         saveMovies()
+        showSuccess(message: "Movie added successfully!")
     }
     
     func updateMovie(_ movie: Movie) {
         if let index = movies.firstIndex(where: { $0.id == movie.id }) {
             movies[index] = movie
             saveMovies()
+            showSuccess(message: "Movie updated successfully!")
         }
     }
     
     func deleteMovie(_ movie: Movie) {
         movies.removeAll { $0.id == movie.id }
         saveMovies()
+        showSuccess(message: "Movie deleted successfully!")
     }
     
     private func saveMovies() {
@@ -40,6 +45,17 @@ class MovieViewModel: ObservableObject {
             if let decoded = try? JSONDecoder().decode([Movie].self, from: data) {
                 movies = decoded
             }
+        }
+    }
+    
+    private func showSuccess(message: String) {
+        successMessage = message
+        showSuccessMessage = true
+        
+        // Hide message after delay
+        Task {
+            try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // 2 seconds
+            showSuccessMessage = false
         }
     }
     
