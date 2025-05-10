@@ -17,7 +17,7 @@ enum Theme {
     
     static var secondaryBackground: Color {
         adaptiveColor(
-            light: Color(hex: "F2F2F7"),
+            light: Color(hex: "FFFFFF"),
             dark: Color(hex: "2C2C2E")
         )
     }
