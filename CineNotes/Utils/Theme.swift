@@ -55,7 +55,7 @@ enum Theme {
     static var tabBarBackground: Color {
         adaptiveColor(
             light: Color(hex: "FFFFFF"),
-            dark: Color(hex: "48484A") // Using an even lighter shade for better visibility in dark mode
+            dark: Color(hex: "545456") // Using an even lighter shade for better visibility in dark mode
         )
     }
     
