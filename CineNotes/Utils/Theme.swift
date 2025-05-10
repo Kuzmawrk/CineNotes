@@ -52,6 +52,13 @@ enum Theme {
     }
     
     // UI Elements
+    static var tabBarBackground: Color {
+        adaptiveColor(
+            light: Color(hex: "FFFFFF"),
+            dark: Color(hex: "2C2C2E") // Lighter color for dark mode
+        )
+    }
+    
     static var divider: Color {
         adaptiveColor(
             light: Color(hex: "C6C6C8"),
