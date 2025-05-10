@@ -33,7 +33,7 @@ struct OnboardingView: View {
                 }
             }
             .padding()
-            .offset(y: 200)
+            .offset(y: 160)
         }
     }
     
